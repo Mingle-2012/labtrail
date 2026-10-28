@@ -31,11 +31,17 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error("seekdb initialization failed: %s", e)
     try:
-        from app.powercontext_service import _get_collection
-        _get_collection()
-        logger.info("Research memory collection initialized successfully")
+        from app.embedding_service import embed_texts
+        embed_texts(["warmup"])
+        logger.info("Embedding model loaded")
     except Exception as e:
-        logger.error("Research memory initialization failed: %s", e)
+        logger.error("Embedding model initialization failed: %s", e)
+    from app.powercontext_service import powercontext_health
+    pc_status = powercontext_health()
+    if pc_status["status"] == "ready":
+        logger.info("PowerContext connected at %s", pc_status["url"])
+    else:
+        logger.warning("PowerContext unavailable at %s: %s", pc_status["url"], pc_status.get("error", ""))
     logger.info("LabTrail backend ready")
     yield
     logger.info("LabTrail backend shutting down")
@@ -72,12 +78,12 @@ def health_check():
         status["services"]["seekdb"] = "connected"
     except Exception as e:
         status["services"]["seekdb"] = f"error: {e}"
-    try:
-        from app.powercontext_service import _get_collection
-        _get_collection()
-        status["services"]["research_memory"] = "connected"
-    except Exception as e:
-        status["services"]["research_memory"] = f"error: {e}"
+    from app.powercontext_service import powercontext_health
+    pc_status = powercontext_health()
+    status["services"]["powercontext"] = pc_status["status"]
+    if pc_status["status"] != "ready":
+        status["status"] = "degraded"
+        status["services"]["powercontext_detail"] = pc_status
     return status
 
 

@@ -165,7 +165,7 @@ export default function Memory() {
             {searchResults.map((r: any, i: number) => (
               <div key={i} className="p-2 bg-gray-50 rounded text-sm">
                 <p>{r.content}</p>
-                <p className="text-xs text-gray-500 mt-1">相关度: {(r.score * 100).toFixed(1)}%</p>
+                <p className="text-xs text-gray-500 mt-1">检索得分: {Number(r.score).toFixed(3)}</p>
               </div>
             ))}
           </div>

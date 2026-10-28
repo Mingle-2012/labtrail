@@ -1,50 +1,87 @@
 # 验证指南
 
-本文档提供 LabTrail 三个核心功能的可复现验证场景。
+本文档说明如何复现 LabTrail 的核心能力。所有结果均来自真实运行的后端，不使用预置假数据。
+
+## 环境准备
+
+```bash
+# 终端 1：PowerContext Server（默认 127.0.0.1:8890）
+./scripts/start_powercontext.sh
+
+# 终端 2：加载演示数据并启动后端（默认 127.0.0.1:8000）
+source venv/bin/activate
+python scripts/load_demo_data.py
+cd backend && uvicorn app.main:app --port 8000
+```
+
+健康检查应返回：
+
+```json
+{"status": "ok", "services": {"seekdb": "connected", "powercontext": "ready"}}
+```
+
+## 一键验证脚本
+
+```bash
+python scripts/verify.py
+```
+
+脚本执行 12 项检查，逐项打印 PASS/FAIL 和真实耗时，并把原始输出写入：
+
+- `evidence/verification.log`：人类可读的检查表与样本
+- `evidence/verification.json`：机器可读的完整结果
+
+最近一次运行（2026-10-29）结果：**12/12 通过**。
+
+| # | 检查项 | 结果 | 耗时 | 实际输出 |
+| --- | --- | --- | --- | --- |
+| 1 | API 健康（seekdb + PowerContext） | PASS | 184 ms | `seekdb=connected, powercontext=ready` |
+| 2 | PowerContext 直连健康 + scope | PASS | 11 ms | `ready, scopes=2 -> Default, LabTrail · demo_project` |
+| 3 | seekdb 混合检索 | PASS | 595 ms（进程首次检索含向量化预热） | 5 条结果，top：`ood_analysis_notes.md`、`query_aware_construction.md`、`build_time_analysis.md` |
+| 4 | seekdb 向量检索 | PASS | 80 ms | 3 条结果（余弦相似度），top：`query_aware_construction.md` (0.6877) |
+| 5 | seekdb 全文检索 | PASS | 4 ms | 3 条结果（全文相关度），top：`ood_analysis_notes.md` (0.9265) |
+| 6 | 实验数据 | PASS | 3 ms | 30 条记录，方法 HNSW / Vamana，Vamana recall@10 均值 0.9015 |
+| 7 | PowerContext 写入记忆 | PASS | 91 ms | 返回真实 `artifact_id` 与 `scope_id` |
+| 8 | PowerContext 检索记忆 | PASS | 35 ms | 5 条结果，命中刚写入的验证记忆 |
+| 9 | PowerContext 恢复上下文 | PASS | 27 ms | 上下文 1324 字符，包含新写入决策 |
+| 10 | PowerContext 遗忘记忆 | PASS | 98 ms | 目标记忆生命周期置为 `forgotten`，列表剩余 6 条 |
+| 11 | 周报生成 | PASS | 27 ms | 4439 字符，包含实验数据与研究记忆 |
+| 12 | PowerContext 持久化文件 | PASS | 1 ms | `backend/data/powercontext` 下 7 个文件，1.4 MB |
 
 ## 场景 A：研究知识检索（seekdb）
 
-### 初始状态
-- 演示项目已加载，包含 8 篇关于基于图的 ANN 搜索的研究笔记
-- seekdb 中包含带有向量和全文索引的文档分块
+演示项目包含 8 篇关于图 ANN 检索的研究笔记，全部写入 seekdb，并建立 IVF 向量索引与 FULLTEXT 索引。
 
-### 操作步骤
-1. 启动后端服务器
-2. 发送搜索请求：
 ```bash
 curl -X POST "http://localhost:8000/api/documents/search?project_id=demo_project" \
   -H "Content-Type: application/json" \
   -d '{"query": "Why does OOD query distribution degrade graph index performance?", "mode": "hybrid", "n_results": 5}'
 ```
 
-### 预期输出
-- 结果包含关于 OOD 查询和图索引的相关文本分块
-- 每条结果包含：
-  - `text`：匹配的文档分块
-  - `metadata.file_name`：来源文档名称（如 "ood_analysis_notes.md"）
-  - `metadata.source`：原始论文/笔记引用
-  - `score`：RRF 融合的相关性评分
-  - `fusion: true`：表示使用了混合搜索
+三种模式走的是三条不同的 seekdb 查询路径，而不是同一个结果换个标签：
 
-### seekdb 证据
-搜索使用了：
-1. IVF 向量索引进行语义相似度匹配
-2. 全文索引进行关键词匹配
-3. RRF 融合组合结果
+| 模式 | seekdb 调用 | 分数含义 | 本次 top-1 |
+| --- | --- | --- | --- |
+| `hybrid` | `Collection.hybrid_search(query=全文, knn=向量, rank=RRF)` | RRF 融合分 | `ood_analysis_notes.md` 0.0325 |
+| `vector` | `Collection.query`（IVF 余弦） | 余弦相似度，越大越相似 | `query_aware_construction.md` 0.6877 |
+| `fulltext` | `hybrid_search` + `where_document={"$contains": ...}` | 全文相关度 | `ood_analysis_notes.md` 0.9265 |
 
-## 场景 B：研究记忆恢复（PowerContext 设计理念）
+每条结果都带 `metadata.file_name`、`metadata.page`、`metadata.source`，可追溯到原始笔记。
 
-### 初始状态
-- 演示项目已保存 6 条研究记忆
+**可观察差异**：全文检索 top-1 是关键词密度最高的 OOD 笔记（0.9265），向量检索 top-1 是语义更接近“查询分布感知构建”的笔记（0.6877），混合检索则由 RRF 融合两路结果。三者结果与分数均不同，说明模式确实生效。
 
-### 操作步骤
+## 场景 B：研究记忆恢复（PowerContext Server）
 
-**步骤 1：查看现有记忆**
+记忆不存放在 seekdb，而是由独立的 PowerContext Server 持久化管理。LabTrail 的每个项目对应一个 PowerContext scope（`LabTrail · {project_id}`），实现项目隔离。
+
+**步骤 1：查看现有记忆**（经 LabTrail 后端调用 PowerContext `/v1/memory/entries/list`）
+
 ```bash
 curl "http://localhost:8000/api/memory/demo_project"
 ```
 
-**步骤 2：保存新记忆**
+**步骤 2：写入一条决策**
+
 ```bash
 curl -X POST "http://localhost:8000/api/memory" \
   -H "Content-Type: application/json" \
@@ -56,43 +93,49 @@ curl -X POST "http://localhost:8000/api/memory" \
   }'
 ```
 
-**步骤 3：模拟新会话 - 恢复上下文**
+后端实际请求 `POST /v1/memory/remember`，返回 `artifact_id`、`scope_id` 与 `changed` 字段。
+
+**步骤 3：模拟新会话，恢复上下文**
+
 ```bash
 curl "http://localhost:8000/api/memory/demo_project/context"
 ```
 
-### 预期输出
-- 上下文端点返回所有已保存的记忆，包括新保存的那条
-- 记忆按类型分组（结论、决策、计划、失败）
-- 包含关于 OOD 优先级的新决策
+返回的上下文中包含刚写入的决策。
 
-**步骤 4：搜索记忆**
+**步骤 4：语义检索记忆**
+
 ```bash
 curl -X POST "http://localhost:8000/api/memory/search" \
   -H "Content-Type: application/json" \
   -d '{"project_id": "demo_project", "query": "What should we prioritize?", "n_results": 3}'
 ```
 
+返回 `hits`、`score`、`matched_by`。默认本地配置未接 embedding provider，PowerContext 自动使用全文检索（jieba）；配置 provider 后会自动启用向量检索。
+
+**步骤 5：遗忘记忆**
+
+```bash
+curl -X DELETE "http://localhost:8000/api/memory/demo_project/{memory_id}"
+```
+
+后端调用 `/v1/atomic-memory/lifecycle`，把该记忆状态置为 `forgotten`，列表中不再返回。
+
 ### PowerContext 证据
-- 记忆持久化存储在 seekdb 中，带有结构化元数据
-- 通过 project_id 过滤实现项目隔离
-- 对记忆内容进行语义搜索
-- 上下文端点展示了跨会话恢复能力
+
+- `GET http://127.0.0.1:8890/health/ready` 返回 `ready`
+- `GET http://127.0.0.1:8890/v1/scopes` 可见 `LabTrail · demo_project`
+- 重启 PowerContext Server 后，记忆仍从 `POWERCONTEXT_HOME`（本地为 `backend/data/powercontext`）恢复
+- `evidence/verification.log` 第 2、7–10、12 项即为上述调用的真实输出
 
 ## 场景 C：实验分析与周报生成
 
-### 初始状态
-- 演示项目包含来自 experiments.csv 的 30 条实验记录
-- 数据涵盖 HNSW 和 Vamana 两种方法，跨 4 个数据集
-
-### 操作步骤
-
-**步骤 1：查看实验分析**
 ```bash
 curl "http://localhost:8000/api/experiments/demo_project"
 ```
 
-### 预期输出
+预期输出（实测）：
+
 ```json
 {
   "total_records": 30,
@@ -100,65 +143,20 @@ curl "http://localhost:8000/api/experiments/demo_project"
   "datasets": ["glove-200-angular", "glove-200-angular-ood", "sift-128-euclidean", "sift-128-euclidean-ood"],
   "metrics": ["index_build_time", "peak_memory", "qps", "recall@10"],
   "summary": {
-    "HNSW": {
-      "recall@10": {"mean": 0.884, "min": 0.7845, "max": 0.9678}
-    },
-    "Vamana": {
-      "recall@10": {"mean": 0.9015, "min": 0.8312, "max": 0.9612}
-    }
+    "HNSW": {"recall@10": {"mean": 0.884}},
+    "Vamana": {"recall@10": {"mean": 0.9015}}
   }
 }
 ```
 
-**步骤 2：生成周报**
 ```bash
 curl -X POST "http://localhost:8000/api/reports/weekly" \
   -H "Content-Type: application/json" \
   -d '{"project_id": "demo_project"}'
 ```
 
-### 预期输出
-- 包含 9 个部分的结构化 Markdown 报告
-- 所有实验数字与原始 CSV 数据一致
-- 研究记忆包含在结论和决策部分中
-- 来源部分确认数据可追溯性
+实测生成 4439 字符的结构化 Markdown，包含实验统计与研究记忆，所有数字可与 `demo-data/experiments.csv` 对照验证。
 
-### 数据可追溯性证据
-- 报告数字可与 `demo-data/experiments.csv` 对照验证
-- 每条实验记录有 `experiment_id` 链接至原始数据
-- 记忆内容与保存的研究结论一致
+## 在线静态演示
 
-## 自动化测试脚本
-
-```bash
-#!/bin/bash
-# 运行所有验证场景
-
-BASE_URL="http://localhost:8000"
-PROJECT_ID="demo_project"
-
-echo "=== 健康检查 ==="
-curl -s "$BASE_URL/api/health" | python3 -m json.tool
-
-echo -e "\n=== 场景 A：搜索 ==="
-curl -s -X POST "$BASE_URL/api/documents/search?project_id=$PROJECT_ID" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "OOD query distribution", "mode": "hybrid", "n_results": 3}' | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'结果数: {d[\"count\"]}, 模式: {d[\"mode\"]}')"
-
-echo -e "\n=== 场景 B：记忆 ==="
-curl -s "$BASE_URL/api/memory/$PROJECT_ID" | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'记忆数: {len(d)}')"
-
-echo -e "\n=== 场景 C：实验 ==="
-curl -s "$BASE_URL/api/experiments/$PROJECT_ID" | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'记录数: {d[\"total_records\"]}, 方法: {d[\"methods\"]}')"
-
-echo -e "\n=== 报告生成 ==="
-curl -s -X POST "$BASE_URL/api/reports/weekly" \
-  -H "Content-Type: application/json" \
-  -d "{\"project_id\": \"$PROJECT_ID\"}" | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'报告长度: {len(d[\"report\"])} 字符')"
-
-echo -e "\n=== 所有场景验证完成 ==="
-```
+<https://labtrail-ufmfmmmc4qq.qoder.zone> 上的交互演示数据由 `scripts/export_web_demo.py` 从上述真实运行实例导出（`web/assets/data/demo.json`），并附有 `evidence/verification.json` 的 12 项检查结果。静态站点不提供 `/api/*`，完整功能请按上述步骤在本地启动。

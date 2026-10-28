@@ -1,0 +1,17 @@
+.git
+.gitignore
+.DS_Store
+venv
+.venv
+**/__pycache__
+**/*.pyc
+node_modules
+frontend/node_modules
+frontend/dist
+backend/data
+backend/uploads
+evidence
+web
+submission
+.env
+.env.local

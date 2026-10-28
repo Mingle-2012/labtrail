@@ -19,7 +19,7 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen bg-[var(--color-bg)]">
-      <aside className="w-56 bg-white border-r border-[var(--color-border)] flex flex-col">
+      <aside className="w-60 shrink-0 bg-white border-r border-[var(--color-border)] flex flex-col">
         <div className="p-4 border-b border-[var(--color-border)]">
           <h1 className="text-lg font-bold text-[var(--color-primary)]">LabTrail</h1>
           <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
@@ -28,12 +28,12 @@ export default function Layout() {
         </div>
 
         {projects.length > 0 && (
-          <div className="p-3 border-b border-[var(--color-border)]">
-            <label className="text-xs font-medium text-[var(--color-text-secondary)] mb-1 block">
+          <div className="px-3 py-3 border-b border-[var(--color-border)] flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-[var(--color-text-secondary)]">
               当前项目
             </label>
             <select
-              className="input text-sm"
+              className="input text-sm min-w-0 truncate py-1.5"
               value={currentProject?.id || ''}
               onChange={(e) => {
                 const p = projects.find(p => p.id === e.target.value)

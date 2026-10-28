@@ -7,9 +7,14 @@ os.chdir(os.path.join(os.path.dirname(__file__), ".."))
 
 from pathlib import Path
 from app.config import DATA_DIR
-from app.project_service import create_project, add_document_record, add_experiment_records
+from app.project_service import (
+    create_project, get_project, update_project, add_document_record,
+    list_documents, add_experiment_records, get_experiment_records,
+)
 from app.seekdb_service import add_document_chunks
-from app.powercontext_service import save_research_memory
+from app.powercontext_service import (
+    save_research_memory, get_project_memories, powercontext_health,
+)
 from app.experiments.service import parse_experiment_csv
 
 DEMO_PROJECT_ID = "demo_project"
@@ -63,48 +68,67 @@ RESEARCH_MEMORIES = [
 def load_demo_data():
     print("Loading demo data for LabTrail...")
 
-    project = create_project(
-        name=DEMO_PROJECT_NAME,
-        description="Research on graph-based indexing methods for Approximate Nearest Neighbor search, focusing on OOD query robustness and distribution-aware construction.",
-        research_direction="Graph-based ANN search, OOD robustness, query distribution-aware indexing",
-        goal="Understand and mitigate OOD performance degradation in graph-based ANN indices",
-    )
+    pc_health = powercontext_health()
+    if pc_health["status"] != "ready":
+        print(f"ERROR: PowerContext Server is not ready at {pc_health['url']}.")
+        print("Start it with: ./scripts/start_powercontext.sh")
+        sys.exit(1)
+
     project_id = DEMO_PROJECT_ID
-    from app.project_service import _load_json, _save_json, PROJECTS_FILE
-    projects = _load_json(PROJECTS_FILE, {})
-    if project["id"] != project_id:
-        projects[project_id] = projects.pop(project["id"])
-        projects[project_id]["id"] = project_id
-        _save_json(PROJECTS_FILE, projects)
-    print(f"  Created project: {DEMO_PROJECT_NAME}")
+    if get_project(project_id) is None:
+        project = create_project(
+            name=DEMO_PROJECT_NAME,
+            description="Research on graph-based indexing methods for Approximate Nearest Neighbor search, focusing on OOD query robustness and distribution-aware construction.",
+            research_direction="Graph-based ANN search, OOD robustness, query distribution-aware indexing",
+            goal="Understand and mitigate OOD performance degradation in graph-based ANN indices",
+        )
+        from app.project_service import _load_json, _save_json, PROJECTS_FILE
+        projects = _load_json(PROJECTS_FILE, {})
+        if project["id"] != project_id:
+            projects[project_id] = projects.pop(project["id"])
+            projects[project_id]["id"] = project_id
+            _save_json(PROJECTS_FILE, projects)
+        print(f"  Created project: {DEMO_PROJECT_NAME}")
+    else:
+        update_project(project_id, {"name": DEMO_PROJECT_NAME})
+        print(f"  Reusing project: {DEMO_PROJECT_NAME}")
 
-    print("  Loading research notes into seekdb...")
-    for i, note in enumerate(PAPER_NOTES):
-        doc_id = f"demo_doc_{i:03d}"
-        chunks = [{
-            "text": note["text"],
-            "metadata": {**note["metadata"], "doc_id": doc_id, "project_id": project_id},
-        }]
-        add_document_chunks(project_id, doc_id, chunks)
-        add_document_record(project_id, note["metadata"]["file_name"], ".md", f"demo://{doc_id}", 1)
-    print(f"  Loaded {len(PAPER_NOTES)} research notes")
+    if list_documents(project_id):
+        print("  Research notes already loaded, skipping")
+    else:
+        print("  Loading research notes into seekdb...")
+        for i, note in enumerate(PAPER_NOTES):
+            doc_id = f"demo_doc_{i:03d}"
+            chunks = [{
+                "text": note["text"],
+                "metadata": {**note["metadata"], "doc_id": doc_id, "project_id": project_id},
+            }]
+            add_document_chunks(project_id, doc_id, chunks)
+            add_document_record(project_id, note["metadata"]["file_name"], ".md", f"demo://{doc_id}", 1)
+        print(f"  Loaded {len(PAPER_NOTES)} research notes")
 
-    print("  Loading experiment data...")
-    csv_path = Path(__file__).parent.parent / "demo-data" / "experiments.csv"
-    records = parse_experiment_csv(str(csv_path), project_id)
-    add_experiment_records(project_id, records)
-    print(f"  Loaded {len(records)} experiment records")
+    if get_experiment_records(project_id):
+        print("  Experiment data already loaded, skipping")
+    else:
+        print("  Loading experiment data...")
+        csv_path = Path(__file__).parent.parent / "demo-data" / "experiments.csv"
+        records = parse_experiment_csv(str(csv_path), project_id)
+        add_experiment_records(project_id, records)
+        print(f"  Loaded {len(records)} experiment records")
 
-    print("  Saving research memories to PowerContext...")
-    for content, memory_type, tags in RESEARCH_MEMORIES:
-        save_research_memory(project_id, content, memory_type, tags)
-    print(f"  Saved {len(RESEARCH_MEMORIES)} research memories")
+    if get_project_memories(project_id):
+        print("  Research memories already loaded, skipping")
+    else:
+        print(f"  Saving research memories to PowerContext ({pc_health['url']})...")
+        for content, memory_type, tags in RESEARCH_MEMORIES:
+            save_research_memory(project_id, content, memory_type, tags)
+        print(f"  Saved {len(RESEARCH_MEMORIES)} research memories")
 
     print("Demo data loading complete!")
     print(f"  Project ID: {project_id}")
-    print(f"  Documents: {len(PAPER_NOTES)}")
-    print(f"  Experiments: {len(records)}")
-    print(f"  Memories: {len(RESEARCH_MEMORIES)}")
+    print(f"  Documents: {len(list_documents(project_id))}")
+    print(f"  Experiments: {len(get_experiment_records(project_id))}")
+    print(f"  Memories: {len(get_project_memories(project_id))}")
 
 
 if __name__ == "__main__":

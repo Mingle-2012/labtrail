@@ -52,14 +52,14 @@ export default function Search() {
           <div className="flex-1">
             <input
               className="input"
-              placeholder="输入研究问题，例如：为什么 OOD 查询可能导致图索引性能下降？"
+              placeholder="输入研究问题，例如：Why does OOD query distribution degrade graph index performance?"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
           <select
-            className="input w-32"
+            className="input w-36 shrink-0"
             value={mode}
             onChange={(e) => setMode(e.target.value)}
           >
@@ -74,8 +74,8 @@ export default function Search() {
         </div>
         <div className="flex gap-4 text-xs text-[var(--color-text-secondary)]">
           <span className="flex items-center gap-1"><Database size={12} /> seekdb 向量索引</span>
-          <span className="flex items-center gap-1"><FileText size={12} /> 全文搜索</span>
-          <span className="flex items-center gap-1"><Zap size={12} /> RRF 融合排序</span>
+          <span className="flex items-center gap-1"><FileText size={12} /> FULLTEXT 全文索引</span>
+          <span className="flex items-center gap-1"><Zap size={12} /> {mode === 'hybrid' ? 'RRF 融合排序' : mode === 'vector' ? 'IVF 余弦检索' : '全文相关度排序'}</span>
         </div>
       </div>
 
@@ -108,7 +108,11 @@ export default function Search() {
                   )}
                 </div>
                 <span className="text-xs text-[var(--color-text-secondary)]">
-                  相关度: {(r.score * 100).toFixed(1)}%
+                  {mode === 'hybrid'
+                    ? `RRF 融合分: ${Number(r.score).toFixed(4)}`
+                    : mode === 'vector'
+                      ? `余弦相似度: ${(r.score * 100).toFixed(1)}%`
+                      : `全文得分: ${Number(r.score).toFixed(3)}`}
                 </span>
               </div>
               <p className="text-sm leading-relaxed text-gray-700 bg-gray-50 p-3 rounded">

@@ -1,0 +1,218 @@
+{
+  "generated_at": "2026-10-28T17:51:50.347943+00:00",
+  "backend": "http://127.0.0.1:8000",
+  "powercontext": "http://127.0.0.1:8890",
+  "project_id": "demo_project",
+  "summary": {
+    "passed": 12,
+    "failed": 0,
+    "total": 12
+  },
+  "checks": [
+    {
+      "name": "API health (seekdb + PowerContext)",
+      "ok": true,
+      "detail": "seekdb=connected, powercontext=ready",
+      "latency_ms": 184.5
+    },
+    {
+      "name": "PowerContext direct health + LabTrail scope",
+      "ok": true,
+      "detail": "ready, scopes=2 -> Default, LabTrail · demo_project",
+      "latency_ms": 10.9
+    },
+    {
+      "name": "seekdb hybrid search",
+      "ok": true,
+      "detail": "5 results, top files=['ood_analysis_notes.md', 'query_aware_construction.md', 'build_time_analysis.md']",
+      "latency_ms": 595.0
+    },
+    {
+      "name": "seekdb vector search",
+      "ok": true,
+      "detail": "3 results (cosine similarity), top=query_aware_construction.md",
+      "latency_ms": 79.8
+    },
+    {
+      "name": "seekdb fulltext search",
+      "ok": true,
+      "detail": "3 results (fulltext relevance), top=ood_analysis_notes.md",
+      "latency_ms": 3.8
+    },
+    {
+      "name": "Experiment data (30 records)",
+      "ok": true,
+      "detail": "30 records, methods=['HNSW', 'Vamana'], vamana recall mean=0.9015",
+      "latency_ms": 3.3
+    },
+    {
+      "name": "PowerContext save memory",
+      "ok": true,
+      "detail": "artifact=art_d6baf781ee16496094ae97ffeb590e54 scope=scp_5axsabfcgnhf55mgy1shhxfzzc",
+      "latency_ms": 91.4
+    },
+    {
+      "name": "PowerContext search memory",
+      "ok": true,
+      "detail": "5 results, verification memory found",
+      "latency_ms": 35.1
+    },
+    {
+      "name": "PowerContext recover context",
+      "ok": true,
+      "detail": "context length=1324, contains new decision",
+      "latency_ms": 27.4
+    },
+    {
+      "name": "PowerContext forget memory",
+      "ok": true,
+      "detail": "forgotten art_d6baf781ee16496094ae97ffeb590e54, remaining=6",
+      "latency_ms": 98.0
+    },
+    {
+      "name": "Weekly report generation",
+      "ok": true,
+      "detail": "4439 chars, includes project experiments and memories",
+      "latency_ms": 26.8
+    },
+    {
+      "name": "PowerContext persistence files",
+      "ok": true,
+      "detail": "7 files, 1.4 MB under backend/data/powercontext",
+      "latency_ms": 0.7
+    }
+  ],
+  "samples": {
+    "health": {
+      "status": "ok",
+      "services": {
+        "seekdb": "connected",
+        "powercontext": "ready"
+      }
+    },
+    "powercontext_scopes": [
+      "Default",
+      "LabTrail · demo_project"
+    ],
+    "hybrid_search": [
+      {
+        "file": "ood_analysis_notes.md",
+        "page": 1,
+        "score": 0.0325,
+        "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution us"
+      },
+      {
+        "file": "query_aware_construction.md",
+        "page": 1,
+        "score": 0.0325,
+        "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representat"
+      },
+      {
+        "file": "build_time_analysis.md",
+        "page": 1,
+        "score": 0.0313,
+        "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-l"
+      }
+    ],
+    "vector_search": [
+      {
+        "file": "query_aware_construction.md",
+        "score": 0.6877
+      },
+      {
+        "file": "ood_analysis_notes.md",
+        "score": 0.6311
+      },
+      {
+        "file": "build_time_analysis.md",
+        "score": 0.4541
+      }
+    ],
+    "fulltext_search": [
+      {
+        "file": "ood_analysis_notes.md",
+        "score": 0.9265
+      },
+      {
+        "file": "query_aware_construction.md",
+        "score": 0.4945
+      },
+      {
+        "file": "dataset_descriptions.md",
+        "score": 0.3958
+      }
+    ],
+    "experiments": {
+      "total_records": 30,
+      "methods": [
+        "HNSW",
+        "Vamana"
+      ],
+      "datasets": [
+        "glove-200-angular",
+        "glove-200-angular-ood",
+        "sift-128-euclidean",
+        "sift-128-euclidean-ood"
+      ],
+      "vamana_recall_mean": 0.9015
+    },
+    "memory_save": {
+      "id": "art_d6baf781ee16496094ae97ffeb590e54",
+      "scope_id": "scp_5axsabfcgnhf55mgy1shhxfzzc",
+      "memory_type": "decision"
+    },
+    "memory_search": [
+      {
+        "score": 0.016,
+        "content": "Verification memory 1793209909: prefer testing OOD recall before quantization."
+      },
+      {
+        "score": 0.016,
+        "content": "Decision: Prioritize Vamana over HNSW for OOD scenarios based on initial experiments showing 4-5% better recall on OOD b"
+      },
+      {
+        "score": 0.016,
+        "content": "Current research focus: understanding how OOD query distributions affect graph-based ANN index performance. We hypothesi"
+      }
+    ],
+    "memory_context_excerpt": "based on initial experiments showing 4-5% better recall on OOD benchmarks with comparable QPS.\n[plan] Research direction: Investigate whether combining HNSW's hierarchical structure with Vamana's alpha-pruning can create a hybrid index that handles OOD queries better than either method alone.\n[conclusion] Current research focus: understanding how OOD query distributions affect graph-based ANN index performance. We hypothesize that query distribution-aware construction can significantly improve OOD recall.\n[decision] Verification memory 1793209909: prefer testing OOD recall before quantization.",
+    "memory_forget": {
+      "deleted": "art_d6baf781ee16496094ae97ffeb590e54",
+      "remaining": 6
+    },
+    "report": {
+      "length": 4439,
+      "head": "# Research Weekly Report\n\n**Project**: Graph-based Approximate Nearest Neighbor Search\n**Period**: 2026-10-22 ~ 2026-10-29\n**Generated**: 2026-10-29 01:51\n\n## 1. Research Goals This Week\n\n- Next experiment plan: Test query distribution-aware graph construction on both HNSW and Vamana using the SIFT-128-OOD dataset. Compare recall improvement vs construction time overhead.\n- Research direction: Investigate whether combining HNSW's hierarchical structure with Vamana's alpha-pruning can create a hybrid index that handles OOD queries better than either method alone.\n\n## 2. Literature & Reading Discoveries\n\n- dataset_descriptions.md (2026-10-28T23:32:11.809124)\n- dataset_descriptions.md (2026-10-28T23:32:11.714787)\n- build_time_analysis.md (2026-10-28T23:32:11.529945)\n- evaluation_metrics.md (2"
+    },
+    "powercontext_files": [
+      {
+        "path": "backend/data/powercontext/.powercontext.db.cursor-key",
+        "size": 32
+      },
+      {
+        "path": "backend/data/powercontext/.powercontext.db.cursor-key.lock",
+        "size": 0
+      },
+      {
+        "path": "backend/data/powercontext/powercontext.db",
+        "size": 835584
+      },
+      {
+        "path": "backend/data/powercontext/powercontext.db-shm",
+        "size": 32768
+      },
+      {
+        "path": "backend/data/powercontext/powercontext.db-wal",
+        "size": 572712
+      },
+      {
+        "path": "backend/data/powercontext/powercontext.db.pc-migration-state/maintenance.json",
+        "size": 962
+      },
+      {
+        "path": "backend/data/powercontext/powercontext.db.pc-migration.lock",
+        "size": 0
+      }
+    ]
+  }
+}

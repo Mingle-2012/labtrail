@@ -65,7 +65,7 @@ export default function Dashboard() {
         <StatCard
           icon={<Brain size={20} />}
           label="研究记忆"
-          value={stats?.methods?.length || 0}
+          value={stats?.total_memories || 0}
           color="purple"
           onClick={() => navigate('/memory')}
         />

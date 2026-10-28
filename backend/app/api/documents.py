@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from app.config import UPLOAD_DIR
 from app.ingestion.parser import parse_file, SUPPORTED_EXTENSIONS
 from app.seekdb_service import (
-    add_document_chunks, search_documents, hybrid_search,
+    add_document_chunks, search_documents, fulltext_search, hybrid_search,
     delete_document_chunks,
 )
 from app.project_service import (
@@ -93,8 +93,8 @@ def search_documents_api(
 ):
     if req.mode == "vector":
         results = search_documents(project_id, req.query, req.n_results, req.where)
-    elif req.mode == "hybrid":
-        results = hybrid_search(project_id, req.query, req.n_results, req.where)
+    elif req.mode == "fulltext":
+        results = fulltext_search(project_id, req.query, req.n_results, req.where)
     else:
-        results = search_documents(project_id, req.query, req.n_results, req.where)
+        results = hybrid_search(project_id, req.query, req.n_results, req.where)
     return {"results": results, "count": len(results), "mode": req.mode}

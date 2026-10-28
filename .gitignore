@@ -8,7 +8,8 @@ venv/
 env/
 
 # Data
-data/
+/backend/data/
+/data/
 *.db
 *.sqlite3
 
@@ -33,5 +34,5 @@ Thumbs.db
 # Uploads
 uploads/
 
-# Evidence
-evidence/screenshots/
+# Submission package (built artifact)
+/submission/

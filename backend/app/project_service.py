@@ -150,11 +150,17 @@ def get_dashboard_stats(project_id: str) -> dict:
     experiments = get_experiment_records(project_id)
     doc_count = get_document_count(project_id)
     chunk_count = get_chunk_count(project_id)
+    try:
+        from app.powercontext_service import get_project_memories
+        memory_count = len(get_project_memories(project_id))
+    except Exception:
+        memory_count = 0
 
     return {
         "total_documents": len(documents),
         "total_chunks": chunk_count,
         "total_experiments": len(experiments),
+        "total_memories": memory_count,
         "methods": sorted(set(r.get("method", "") for r in experiments if r.get("method"))),
         "datasets": sorted(set(r.get("dataset", "") for r in experiments if r.get("dataset"))),
         "recent_activities": get_project(project_id).get("recent_activities", [])[:10] if get_project(project_id) else [],

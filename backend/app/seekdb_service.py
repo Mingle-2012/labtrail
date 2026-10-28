@@ -14,7 +14,7 @@ from pyseekdb import (
     IVFConfiguration,
 )
 
-from app.config import SEEKB_MODE, SEEKB_PATH, SEEKB_HOST, SEEKB_PORT
+from app.config import SEEKDB_MODE, SEEKDB_PATH, SEEKDB_HOST, SEEKDB_PORT
 from app.embedding_service import get_embedding_dimension
 
 logger = logging.getLogger(__name__)
@@ -23,18 +23,17 @@ _client = None
 _collections: dict[str, Any] = {}
 
 DOCS_COLLECTION = "labtrail_documents"
-EXPERIMENTS_COLLECTION = "labtrail_experiments"
 
 
 def get_client() -> Any:
     global _client
     if _client is None:
-        if SEEKB_MODE == "embedded":
-            _client = Client(path=SEEKB_PATH)
-            logger.info("seekdb embedded client initialized at %s", SEEKB_PATH)
+        if SEEKDB_MODE == "embedded":
+            _client = Client(path=SEEKDB_PATH)
+            logger.info("seekdb embedded client initialized at %s", SEEKDB_PATH)
         else:
-            _client = Client(host=SEEKB_HOST, port=SEEKB_PORT)
-            logger.info("seekdb server client connected at %s:%s", SEEKB_HOST, SEEKB_PORT)
+            _client = Client(host=SEEKDB_HOST, port=SEEKDB_PORT)
+            logger.info("seekdb server client connected at %s:%s", SEEKDB_HOST, SEEKDB_PORT)
     return _client
 
 
@@ -65,10 +64,6 @@ def get_docs_collection() -> Any:
     return get_or_create_collection(DOCS_COLLECTION)
 
 
-def get_experiments_collection() -> Any:
-    return get_or_create_collection(EXPERIMENTS_COLLECTION)
-
-
 def add_document_chunks(
     project_id: str,
     doc_id: str,
@@ -93,49 +88,65 @@ def add_document_chunks(
     return ids
 
 
+def _project_where(project_id: str, where: dict[str, Any] | None = None) -> dict[str, Any]:
+    if where:
+        return {"$and": [{"project_id": project_id}, where]}
+    return {"project_id": project_id}
+
+
+def _rows_to_results(result: dict[str, Any], score_from_distance: bool) -> list[dict[str, Any]]:
+    docs = result.get("documents", [[]])[0] if result.get("documents") else []
+    metas = result.get("metadatas", [[]])[0] if result.get("metadatas") else []
+    ids = result.get("ids", [[]])[0] if result.get("ids") else []
+    scores = result.get("distances", [[]])[0] if result.get("distances") else []
+
+    results = []
+    for i, doc in enumerate(docs):
+        raw = float(scores[i]) if i < len(scores) else 0.0
+        results.append({
+            "id": ids[i] if i < len(ids) else "",
+            "text": doc,
+            "score": 1.0 - raw if score_from_distance else raw,
+            "metadata": metas[i] if i < len(metas) else {},
+        })
+    return results
+
+
 def search_documents(
     project_id: str,
     query: str,
     n_results: int = 10,
     where: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
+    """Dense vector search. Scores are cosine similarity (1 - cosine distance)."""
     collection = get_docs_collection()
-    filter_where = {"project_id": project_id}
-    if where:
-        filter_where = {"$and": [filter_where, where]}
+    results = collection.query(
+        query_texts=[query],
+        n_results=n_results,
+        where=_project_where(project_id, where),
+        include=["documents", "distances", "metadatas"],
+    )
+    return _rows_to_results(results, score_from_distance=True)
 
-    try:
-        results = collection.query(
-            query_texts=[query],
-            n_results=n_results,
-            where=filter_where,
-            include=["documents", "distances", "metadatas"],
-        )
-    except Exception:
-        results = collection.query(
-            query_texts=[query],
-            n_results=n_results,
-            include=["documents", "distances", "metadatas"],
-        )
 
-    search_results = []
-    if results and results.get("documents"):
-        docs = results["documents"][0] if results["documents"] else []
-        distances = results.get("distances", [[]])[0] if results.get("distances") else []
-        metas = results.get("metadatas", [[]])[0] if results.get("metadatas") else []
-        rids = results.get("ids", [[]])[0] if results.get("ids") else []
-
-        for i, doc in enumerate(docs):
-            meta = metas[i] if i < len(metas) else {}
-            if meta.get("project_id") and meta["project_id"] != project_id:
-                continue
-            search_results.append({
-                "id": rids[i] if i < len(rids) else "",
-                "text": doc,
-                "score": float(distances[i]) if i < len(distances) else 0.0,
-                "metadata": meta,
-            })
-    return search_results
+def fulltext_search(
+    project_id: str,
+    query: str,
+    n_results: int = 10,
+    where: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    """Full-text search on the seekdb FULLTEXT index. Scores are relevance, higher is better."""
+    collection = get_docs_collection()
+    results = collection.hybrid_search(
+        query={
+            "where_document": {"$contains": query},
+            "where": _project_where(project_id, where),
+            "n_results": n_results,
+        },
+        n_results=n_results,
+        include=["documents", "metadatas", "distances"],
+    )
+    return _rows_to_results(results, score_from_distance=False)
 
 
 def hybrid_search(
@@ -144,64 +155,25 @@ def hybrid_search(
     n_results: int = 10,
     where: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
-    vector_results = search_documents(project_id, query, n_results=n_results * 2, where=where)
-
-    ft_results_list = []
-    try:
-        collection = get_docs_collection()
-        filter_where = {"project_id": project_id}
-        ft_results = collection.query(
-            query_texts=[query],
-            n_results=n_results * 2,
-            where=filter_where,
-            include=["documents", "metadatas"],
-            search_mode="fulltext",
-        )
-        ft_docs = ft_results.get("documents", [[]])[0] if ft_results.get("documents") else []
-        ft_metas = ft_results.get("metadatas", [[]])[0] if ft_results.get("metadatas") else []
-        ft_ids = ft_results.get("ids", [[]])[0] if ft_results.get("ids") else []
-
-        for i, doc in enumerate(ft_docs):
-            ft_results_list.append({
-                "id": ft_ids[i] if i < len(ft_ids) else "",
-                "text": doc,
-                "metadata": ft_metas[i] if i < len(ft_metas) else {},
-            })
-    except Exception as e:
-        logger.warning("Fulltext search fallback: %s", e)
-
-    return _fuse_results(vector_results, ft_results_list, n_results)
-
-
-def _fuse_results(
-    vector_results: list[dict],
-    ft_results: list[dict],
-    n_results: int,
-) -> list[dict]:
-    k = 60
-    scores: dict[str, float] = {}
-    doc_map: dict[str, dict] = {}
-
-    for rank, r in enumerate(vector_results):
-        rid = r["id"]
-        scores[rid] = scores.get(rid, 0.0) + 1.0 / (k + rank + 1)
-        doc_map[rid] = r
-
-    for rank, r in enumerate(ft_results):
-        rid = r["id"]
-        scores[rid] = scores.get(rid, 0.0) + 1.0 / (k + rank + 1)
-        if rid not in doc_map:
-            doc_map[rid] = r
-
-    sorted_ids = sorted(scores.keys(), key=lambda x: scores[x], reverse=True)
-
-    results = []
-    for rid in sorted_ids[:n_results]:
-        item = doc_map[rid].copy()
-        item["score"] = scores[rid]
-        item["fusion"] = True
-        results.append(item)
-    return results
+    """Native seekdb hybrid search: vector KNN + FULLTEXT, fused by RRF."""
+    collection = get_docs_collection()
+    filter_where = _project_where(project_id, where)
+    results = collection.hybrid_search(
+        query={
+            "where_document": {"$contains": query},
+            "where": filter_where,
+            "n_results": n_results,
+        },
+        knn={
+            "query_texts": [query],
+            "where": filter_where,
+            "n_results": n_results,
+        },
+        rank={"rrf": {"rank_window_size": 60, "rank_constant": 60}},
+        n_results=n_results,
+        include=["documents", "metadatas", "distances"],
+    )
+    return _rows_to_results(results, score_from_distance=False)
 
 
 def delete_document_chunks(project_id: str, doc_id: str) -> int:

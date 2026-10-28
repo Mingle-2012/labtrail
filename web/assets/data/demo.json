@@ -1,0 +1,951 @@
+{
+  "generated_at": "2026-10-28T17:52:00+00:00",
+  "source": "LabTrail backend running locally with seekdb 1.4.0 + PowerContext 1.4.1",
+  "project": {
+    "id": "demo_project",
+    "name": "Graph-based Approximate Nearest Neighbor Search",
+    "description": "Research on graph-based indexing methods for Approximate Nearest Neighbor search, focusing on OOD query robustness and distribution-aware construction.",
+    "research_direction": "Graph-based ANN search, OOD robustness, query distribution-aware indexing",
+    "goal": "Understand and mitigate OOD performance degradation in graph-based ANN indices"
+  },
+  "dashboard": {
+    "total_documents": 8,
+    "total_chunks": 8,
+    "total_experiments": 30,
+    "total_memories": 6,
+    "methods": [
+      "HNSW",
+      "Vamana"
+    ],
+    "datasets": [
+      "glove-200-angular",
+      "glove-200-angular-ood",
+      "sift-128-euclidean",
+      "sift-128-euclidean-ood"
+    ]
+  },
+  "queries": [
+    {
+      "id": "ood",
+      "label": "OOD 查询为何退化",
+      "text": "Why does OOD query distribution degrade graph index performance?"
+    },
+    {
+      "id": "vamana",
+      "label": "Vamana 剪枝参数",
+      "text": "How does the Vamana alpha pruning parameter affect recall?"
+    },
+    {
+      "id": "tradeoff",
+      "label": "召回率与吞吐权衡",
+      "text": "What is the recall and QPS tradeoff for graph indexes?"
+    },
+    {
+      "id": "construction",
+      "label": "分布感知建图",
+      "text": "How to build a query distribution-aware graph index?"
+    }
+  ],
+  "search": {
+    "ood": {
+      "hybrid": {
+        "mode": "hybrid",
+        "count": 5,
+        "results": [
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.0325,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          },
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.0325,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.0313,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          },
+          {
+            "text": "The Recall-QPS tradeoff is the primary evaluation metric for ANN search algorithms. Higher recall typically requires more computational work per query (larger search lists, more graph traversals), reducing throughput (QPS). The Pareto frontier of recall vs QPS characterizes algorithm efficiency. For practical systems, the target is often recall@10 > 0.95 with QPS > 10000 for million-scale datasets. Memory consumption is another critical factor: graph-based methods require O(N*M) memory for the graph structure, where N is the dataset size and M is the average degree.",
+            "score": 0.0308,
+            "file_name": "evaluation_metrics.md",
+            "source": "ANN benchmark methodology documentation",
+            "page": 1,
+            "doc_id": "demo_doc_004"
+          },
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.0303,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          }
+        ]
+      },
+      "vector": {
+        "mode": "vector",
+        "count": 5,
+        "results": [
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.6876943402082022,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.6311493463104507,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.4540507317090553,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          },
+          {
+            "text": "The Recall-QPS tradeoff is the primary evaluation metric for ANN search algorithms. Higher recall typically requires more computational work per query (larger search lists, more graph traversals), reducing throughput (QPS). The Pareto frontier of recall vs QPS characterizes algorithm efficiency. For practical systems, the target is often recall@10 > 0.95 with QPS > 10000 for million-scale datasets. Memory consumption is another critical factor: graph-based methods require O(N*M) memory for the graph structure, where N is the dataset size and M is the average degree.",
+            "score": 0.44116364173280176,
+            "file_name": "evaluation_metrics.md",
+            "source": "ANN benchmark methodology documentation",
+            "page": 1,
+            "doc_id": "demo_doc_004"
+          },
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.4226546545915586,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          }
+        ]
+      },
+      "fulltext": {
+        "mode": "fulltext",
+        "count": 5,
+        "results": [
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 1.0990374591226995,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          },
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.7562657715792067,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "HNSW (Hierarchical Navigable Small World) graphs achieve state-of-the-art performance for approximate nearest neighbor search. The algorithm builds a multi-layered proximity graph where upper layers provide logarithmic-scale navigation shortcuts and lower layers contain all data points for fine-grained search. Search complexity is O(log N) with high probability. Key parameters include M (maximum number of connections per element per layer), ef_construction (size of the dynamic candidate list during construction), and ef_search (size of the dynamic candidate list during search). The hierarchical structure enables efficient navigation even in high-dimensional spaces.",
+            "score": 0.4436836667413254,
+            "file_name": "hnsw_paper_notes.md",
+            "source": "Malkov & Yashunin, 2018 - Efficient and robust approximate nearest neighbor search using HNSW graphs",
+            "page": 1,
+            "doc_id": "demo_doc_000"
+          },
+          {
+            "text": "SIFT-128-euclidean is a standard benchmark dataset for ANN search evaluation. It contains 1 million 128-dimensional vectors extracted from image descriptors, with Euclidean distance as the similarity metric. The dataset has relatively low intrinsic dimensionality and well-behaved distance distributions, making it suitable for evaluating basic algorithm performance. The OOD variant (sift-128-euclidean-ood) uses queries sampled from a shifted distribution to test robustness.",
+            "score": 0.3958395789642329,
+            "file_name": "dataset_descriptions.md",
+            "source": "ANN benchmarks dataset documentation",
+            "page": 1,
+            "doc_id": "demo_doc_006"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.2411790895432942,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          }
+        ]
+      }
+    },
+    "vamana": {
+      "hybrid": {
+        "mode": "hybrid",
+        "count": 5,
+        "results": [
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.0328,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.032,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          },
+          {
+            "text": "The Recall-QPS tradeoff is the primary evaluation metric for ANN search algorithms. Higher recall typically requires more computational work per query (larger search lists, more graph traversals), reducing throughput (QPS). The Pareto frontier of recall vs QPS characterizes algorithm efficiency. For practical systems, the target is often recall@10 > 0.95 with QPS > 10000 for million-scale datasets. Memory consumption is another critical factor: graph-based methods require O(N*M) memory for the graph structure, where N is the dataset size and M is the average degree.",
+            "score": 0.0318,
+            "file_name": "evaluation_metrics.md",
+            "source": "ANN benchmark methodology documentation",
+            "page": 1,
+            "doc_id": "demo_doc_004"
+          },
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.0313,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.031,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          }
+        ]
+      },
+      "vector": {
+        "mode": "vector",
+        "count": 5,
+        "results": [
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.5231502925146768,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          },
+          {
+            "text": "The Recall-QPS tradeoff is the primary evaluation metric for ANN search algorithms. Higher recall typically requires more computational work per query (larger search lists, more graph traversals), reducing throughput (QPS). The Pareto frontier of recall vs QPS characterizes algorithm efficiency. For practical systems, the target is often recall@10 > 0.95 with QPS > 10000 for million-scale datasets. Memory consumption is another critical factor: graph-based methods require O(N*M) memory for the graph structure, where N is the dataset size and M is the average degree.",
+            "score": 0.4422820063608037,
+            "file_name": "evaluation_metrics.md",
+            "source": "ANN benchmark methodology documentation",
+            "page": 1,
+            "doc_id": "demo_doc_004"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.3612561216295487,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.3158936861304622,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          },
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.24614721408887275,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          }
+        ]
+      },
+      "fulltext": {
+        "mode": "fulltext",
+        "count": 5,
+        "results": [
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 2.2420305403391634,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.8059659165311452,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          },
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.4804272540592442,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "The Recall-QPS tradeoff is the primary evaluation metric for ANN search algorithms. Higher recall typically requires more computational work per query (larger search lists, more graph traversals), reducing throughput (QPS). The Pareto frontier of recall vs QPS characterizes algorithm efficiency. For practical systems, the target is often recall@10 > 0.95 with QPS > 10000 for million-scale datasets. Memory consumption is another critical factor: graph-based methods require O(N*M) memory for the graph structure, where N is the dataset size and M is the average degree.",
+            "score": 0.3706466575120326,
+            "file_name": "evaluation_metrics.md",
+            "source": "ANN benchmark methodology documentation",
+            "page": 1,
+            "doc_id": "demo_doc_004"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.3229079761743079,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          }
+        ]
+      }
+    },
+    "tradeoff": {
+      "hybrid": {
+        "mode": "hybrid",
+        "count": 5,
+        "results": [
+          {
+            "text": "The Recall-QPS tradeoff is the primary evaluation metric for ANN search algorithms. Higher recall typically requires more computational work per query (larger search lists, more graph traversals), reducing throughput (QPS). The Pareto frontier of recall vs QPS characterizes algorithm efficiency. For practical systems, the target is often recall@10 > 0.95 with QPS > 10000 for million-scale datasets. Memory consumption is another critical factor: graph-based methods require O(N*M) memory for the graph structure, where N is the dataset size and M is the average degree.",
+            "score": 0.0328,
+            "file_name": "evaluation_metrics.md",
+            "source": "ANN benchmark methodology documentation",
+            "page": 1,
+            "doc_id": "demo_doc_004"
+          },
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.0318,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          },
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.0317,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.0315,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.031,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          }
+        ]
+      },
+      "vector": {
+        "mode": "vector",
+        "count": 5,
+        "results": [
+          {
+            "text": "The Recall-QPS tradeoff is the primary evaluation metric for ANN search algorithms. Higher recall typically requires more computational work per query (larger search lists, more graph traversals), reducing throughput (QPS). The Pareto frontier of recall vs QPS characterizes algorithm efficiency. For practical systems, the target is often recall@10 > 0.95 with QPS > 10000 for million-scale datasets. Memory consumption is another critical factor: graph-based methods require O(N*M) memory for the graph structure, where N is the dataset size and M is the average degree.",
+            "score": 0.7576745108910459,
+            "file_name": "evaluation_metrics.md",
+            "source": "ANN benchmark methodology documentation",
+            "page": 1,
+            "doc_id": "demo_doc_004"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.5650248800404868,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          },
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.5418722338440539,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.44455139895133167,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.4273238867142721,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          }
+        ]
+      },
+      "fulltext": {
+        "mode": "fulltext",
+        "count": 5,
+        "results": [
+          {
+            "text": "The Recall-QPS tradeoff is the primary evaluation metric for ANN search algorithms. Higher recall typically requires more computational work per query (larger search lists, more graph traversals), reducing throughput (QPS). The Pareto frontier of recall vs QPS characterizes algorithm efficiency. For practical systems, the target is often recall@10 > 0.95 with QPS > 10000 for million-scale datasets. Memory consumption is another critical factor: graph-based methods require O(N*M) memory for the graph structure, where N is the dataset size and M is the average degree.",
+            "score": 2.1589957288666364,
+            "file_name": "evaluation_metrics.md",
+            "source": "ANN benchmark methodology documentation",
+            "page": 1,
+            "doc_id": "demo_doc_004"
+          },
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.8900683530002376,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          },
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.6574755592093166,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.6146447036297438,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.5563657679263643,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          }
+        ]
+      }
+    },
+    "construction": {
+      "hybrid": {
+        "mode": "hybrid",
+        "count": 5,
+        "results": [
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.0328,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.032,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.0318,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          },
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.0315,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          },
+          {
+            "text": "HNSW (Hierarchical Navigable Small World) graphs achieve state-of-the-art performance for approximate nearest neighbor search. The algorithm builds a multi-layered proximity graph where upper layers provide logarithmic-scale navigation shortcuts and lower layers contain all data points for fine-grained search. Search complexity is O(log N) with high probability. Key parameters include M (maximum number of connections per element per layer), ef_construction (size of the dynamic candidate list during construction), and ef_search (size of the dynamic candidate list during search). The hierarchical structure enables efficient navigation even in high-dimensional spaces.",
+            "score": 0.0301,
+            "file_name": "hnsw_paper_notes.md",
+            "source": "Malkov & Yashunin, 2018 - Efficient and robust approximate nearest neighbor search using HNSW graphs",
+            "page": 1,
+            "doc_id": "demo_doc_000"
+          }
+        ]
+      },
+      "vector": {
+        "mode": "vector",
+        "count": 5,
+        "results": [
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 0.6918227849797358,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.6289917302271407,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          },
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.4399734071449073,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.395540303388321,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          },
+          {
+            "text": "HNSW (Hierarchical Navigable Small World) graphs achieve state-of-the-art performance for approximate nearest neighbor search. The algorithm builds a multi-layered proximity graph where upper layers provide logarithmic-scale navigation shortcuts and lower layers contain all data points for fine-grained search. Search complexity is O(log N) with high probability. Key parameters include M (maximum number of connections per element per layer), ef_construction (size of the dynamic candidate list during construction), and ef_search (size of the dynamic candidate list during search). The hierarchical structure enables efficient navigation even in high-dimensional spaces.",
+            "score": 0.39520191575056085,
+            "file_name": "hnsw_paper_notes.md",
+            "source": "Malkov & Yashunin, 2018 - Efficient and robust approximate nearest neighbor search using HNSW graphs",
+            "page": 1,
+            "doc_id": "demo_doc_000"
+          }
+        ]
+      },
+      "fulltext": {
+        "mode": "fulltext",
+        "count": 5,
+        "results": [
+          {
+            "text": "Query distribution-aware graph construction modifies the standard index building process to account for the expected query distribution. By sampling representative queries during construction, the algorithm can create graph connections that improve routing for both in-distribution and OOD queries. Techniques include: (1) adding virtual query points during graph construction, (2) modifying the pruning criteria to maintain edges useful for query routing, (3) using bi-direction edges that consider both data and query neighborhoods. Experiments show 5-15% recall improvement on OOD benchmarks with moderate increase in construction time.",
+            "score": 1.1518817947473656,
+            "file_name": "query_aware_construction.md",
+            "source": "Research notes on distribution-aware indexing strategies",
+            "page": 1,
+            "doc_id": "demo_doc_003"
+          },
+          {
+            "text": "Index build time varies significantly between graph-based algorithms. HNSW construction is O(N*log(N)) due to the multi-layer structure, while Vamana's single-layer construction is O(N*R*L) where R is the max degree and L is the search list size used during construction. In practice, Vamana can be faster for moderate-dimensional data because it avoids the overhead of maintaining multiple graph layers. However, HNSW's construction is more predictable and less sensitive to parameter choices. Peak memory during construction can be 2-3x the final index size due to temporary data structures.",
+            "score": 0.7442683479917637,
+            "file_name": "build_time_analysis.md",
+            "source": "Comparative analysis of graph index construction costs",
+            "page": 1,
+            "doc_id": "demo_doc_005"
+          },
+          {
+            "text": "Out-of-Distribution (OOD) queries present a significant challenge for graph-based ANN indices. When the query distribution differs from the data distribution used during index construction, search recall degrades because the graph topology was optimized for in-distribution routing. The greedy search strategy may encounter more local minima when navigating to OOD query points. This effect is more pronounced in high-dimensional spaces where the curse of dimensionality amplifies distribution differences. Research shows that HNSW can lose 10-15% recall on OOD queries compared to in-distribution queries of similar difficulty.",
+            "score": 0.5444330988095463,
+            "file_name": "ood_analysis_notes.md",
+            "source": "Research analysis on OOD query patterns in graph indices",
+            "page": 1,
+            "doc_id": "demo_doc_002"
+          },
+          {
+            "text": "Vamana (also known as DiskANN) is a graph-based ANN algorithm that builds a bounded-degree graph using alpha-relative neighborhood graph (alpha-RNG) pruning. Unlike HNSW's hierarchical approach, Vamana uses a single-layer graph with controlled connectivity. The pruning parameter alpha (typically 1.0-1.2) controls the tradeoff between graph quality and degree constraints. When alpha=1, the algorithm produces a standard RNG; alpha>1 allows longer edges that improve search recall at the cost of higher degree. Vamana supports both in-memory and disk-based indexing, making it suitable for billion-scale datasets.",
+            "score": 0.36544850498338877,
+            "file_name": "vamana_paper_notes.md",
+            "source": "Subramanya et al., 2019 - DiskANN: Fast accurate billion-point nearest neighbor search on a single node",
+            "page": 1,
+            "doc_id": "demo_doc_001"
+          },
+          {
+            "text": "GloVe-200-angular is a benchmark dataset based on GloVe word embeddings with 200 dimensions and angular (cosine) distance. It represents a more challenging scenario than SIFT due to higher dimensionality and non-uniform data distribution. Word embeddings exhibit clustering behavior with dense regions corresponding to semantic categories. This makes ANN search harder because many points have similar distances to queries, increasing the chance of false negatives in greedy search. The OOD variant simulates queries from a different semantic domain.",
+            "score": 0.3225806451612903,
+            "file_name": "dataset_descriptions.md",
+            "source": "ANN benchmarks dataset documentation",
+            "page": 2,
+            "doc_id": "demo_doc_007"
+          }
+        ]
+      }
+    }
+  },
+  "memories": [
+    {
+      "id": "art_0183dfe1cc40474982d99a11493a43f0",
+      "content": "Failed approach: Adding random long-range edges to HNSW graph did not improve OOD recall significantly (< 1% improvement) while degrading in-distribution performance by 3%. The random edges introduced noise in the navigation structure.",
+      "type": "failure",
+      "state": "active"
+    },
+    {
+      "id": "art_24f5d4843572458eb67f80921d49c70f",
+      "content": "Key finding: The alpha parameter in Vamana's pruning strategy has a significant impact on OOD performance. Alpha=1.2 provides the best tradeoff between in-distribution and OOD recall for our test datasets.",
+      "type": "conclusion",
+      "state": "active"
+    },
+    {
+      "id": "art_332a2c895615453e875366dcf52bee46",
+      "content": "Next experiment plan: Test query distribution-aware graph construction on both HNSW and Vamana using the SIFT-128-OOD dataset. Compare recall improvement vs construction time overhead.",
+      "type": "plan",
+      "state": "active"
+    },
+    {
+      "id": "art_82ff71e6e4d0494fb9b17c31b813e300",
+      "content": "Decision: Prioritize Vamana over HNSW for OOD scenarios based on initial experiments showing 4-5% better recall on OOD benchmarks with comparable QPS.",
+      "type": "decision",
+      "state": "active"
+    },
+    {
+      "id": "art_a70469e2020448159192c963efc305f0",
+      "content": "Research direction: Investigate whether combining HNSW's hierarchical structure with Vamana's alpha-pruning can create a hybrid index that handles OOD queries better than either method alone.",
+      "type": "plan",
+      "state": "active"
+    },
+    {
+      "id": "art_d3c4e9fa3150430b85d4f5ae73f29fbc",
+      "content": "Current research focus: understanding how OOD query distributions affect graph-based ANN index performance. We hypothesize that query distribution-aware construction can significantly improve OOD recall.",
+      "type": "conclusion",
+      "state": "active"
+    }
+  ],
+  "memory_context": "[failure] Failed approach: Adding random long-range edges to HNSW graph did not improve OOD recall significantly (< 1% improvement) while degrading in-distribution performance by 3%. The random edges introduced noise in the navigation structure.\n[conclusion] Key finding: The alpha parameter in Vamana's pruning strategy has a significant impact on OOD performance. Alpha=1.2 provides the best tradeoff between in-distribution and OOD recall for our test datasets.\n[plan] Next experiment plan: Test query distribution-aware graph construction on both HNSW and Vamana using the SIFT-128-OOD dataset. Compare recall improvement vs construction time overhead.\n[decision] Decision: Prioritize Vamana over HNSW for OOD scenarios based on initial experiments showing 4-5% better recall on OOD benchmarks with comparable QPS.\n[plan] Research direction: Investigate whether combining HNSW's hierarchical structure with Vamana's alpha-pruning can create a hybrid index that handles OOD queries better than either method alone.\n[conclusion] Current research focus: understanding how OOD query distributions affect graph-based ANN index performance. We hypothesize that query distribution-aware construction can significantly improve OOD recall.",
+  "experiments": [
+    {
+      "method": "HNSW",
+      "dataset": "sift-128-euclidean",
+      "timestamp": "2026-10-20T10:00:00",
+      "parameters": {
+        "M": 32,
+        "ef_construction": 200,
+        "ef_search": 100
+      },
+      "recall@10": 0.9521,
+      "qps": 12450.5,
+      "index_build_time": 45.2,
+      "peak_memory": 2048.0
+    },
+    {
+      "method": "Vamana",
+      "dataset": "sift-128-euclidean",
+      "timestamp": "2026-10-20T10:00:00",
+      "parameters": {
+        "R": 64,
+        "L": 100,
+        "alpha": 1.2
+      },
+      "recall@10": 0.9487,
+      "qps": 13200.8,
+      "index_build_time": 38.5,
+      "peak_memory": 1856.0
+    },
+    {
+      "method": "HNSW",
+      "dataset": "glove-200-angular",
+      "timestamp": "2026-10-21T14:00:00",
+      "parameters": {
+        "M": 32,
+        "ef_construction": 200,
+        "ef_search": 100
+      },
+      "recall@10": 0.8923,
+      "qps": 8750.2,
+      "index_build_time": 62.1,
+      "peak_memory": 3072.0
+    },
+    {
+      "method": "Vamana",
+      "dataset": "glove-200-angular",
+      "timestamp": "2026-10-21T14:00:00",
+      "parameters": {
+        "R": 64,
+        "L": 100,
+        "alpha": 1.2
+      },
+      "recall@10": 0.9012,
+      "qps": 9200.5,
+      "index_build_time": 55.8,
+      "peak_memory": 2816.0
+    },
+    {
+      "method": "HNSW",
+      "dataset": "sift-128-euclidean-ood",
+      "timestamp": "2026-10-22T09:00:00",
+      "parameters": {
+        "M": 32,
+        "ef_construction": 200,
+        "ef_search": 100
+      },
+      "recall@10": 0.8234,
+      "qps": 11800.3
+    },
+    {
+      "method": "Vamana",
+      "dataset": "sift-128-euclidean-ood",
+      "timestamp": "2026-10-22T09:00:00",
+      "parameters": {
+        "R": 64,
+        "L": 100,
+        "alpha": 1.2
+      },
+      "recall@10": 0.8651,
+      "qps": 12500.7
+    },
+    {
+      "method": "HNSW",
+      "dataset": "glove-200-angular-ood",
+      "timestamp": "2026-10-23T11:00:00",
+      "parameters": {
+        "M": 32,
+        "ef_construction": 200,
+        "ef_search": 100
+      },
+      "recall@10": 0.7845,
+      "qps": 8200.1
+    },
+    {
+      "method": "Vamana",
+      "dataset": "glove-200-angular-ood",
+      "timestamp": "2026-10-23T11:00:00",
+      "parameters": {
+        "R": 64,
+        "L": 100,
+        "alpha": 1.2
+      },
+      "recall@10": 0.8312,
+      "qps": 8900.4
+    },
+    {
+      "method": "HNSW",
+      "dataset": "sift-128-euclidean",
+      "timestamp": "2026-10-24T08:00:00",
+      "parameters": {
+        "M": 64,
+        "ef_construction": 400,
+        "ef_search": 200
+      },
+      "recall@10": 0.9678,
+      "qps": 9800.2,
+      "peak_memory": 3584.0
+    },
+    {
+      "method": "Vamana",
+      "dataset": "sift-128-euclidean",
+      "timestamp": "2026-10-24T08:00:00",
+      "parameters": {
+        "R": 128,
+        "L": 200,
+        "alpha": 1.0
+      },
+      "recall@10": 0.9612,
+      "qps": 10500.6,
+      "peak_memory": 3200.0
+    }
+  ],
+  "recall_qps": {
+    "HNSW": [
+      {
+        "recall": 0.7845,
+        "qps": 8200.1,
+        "dataset": "glove-200-angular-ood"
+      },
+      {
+        "recall": 0.8234,
+        "qps": 11800.3,
+        "dataset": "sift-128-euclidean-ood"
+      },
+      {
+        "recall": 0.8923,
+        "qps": 8750.2,
+        "dataset": "glove-200-angular"
+      },
+      {
+        "recall": 0.9521,
+        "qps": 12450.5,
+        "dataset": "sift-128-euclidean"
+      },
+      {
+        "recall": 0.9678,
+        "qps": 12450.5,
+        "dataset": "sift-128-euclidean"
+      }
+    ],
+    "Vamana": [
+      {
+        "recall": 0.8312,
+        "qps": 8900.4,
+        "dataset": "glove-200-angular-ood"
+      },
+      {
+        "recall": 0.8651,
+        "qps": 12500.7,
+        "dataset": "sift-128-euclidean-ood"
+      },
+      {
+        "recall": 0.9012,
+        "qps": 9200.5,
+        "dataset": "glove-200-angular"
+      },
+      {
+        "recall": 0.9487,
+        "qps": 13200.8,
+        "dataset": "sift-128-euclidean"
+      },
+      {
+        "recall": 0.9612,
+        "qps": 13200.8,
+        "dataset": "sift-128-euclidean"
+      }
+    ]
+  },
+  "experiment_summary": {
+    "methods": [
+      "HNSW",
+      "Vamana"
+    ],
+    "datasets": [
+      "glove-200-angular",
+      "glove-200-angular-ood",
+      "sift-128-euclidean",
+      "sift-128-euclidean-ood"
+    ],
+    "summary": {
+      "HNSW": {
+        "index_build_time": {
+          "count": 2,
+          "mean": 53.650000000000006,
+          "min": 45.2,
+          "max": 62.1,
+          "values": [
+            45.2,
+            62.1
+          ]
+        },
+        "peak_memory": {
+          "count": 3,
+          "mean": 2901.3333333333335,
+          "min": 2048.0,
+          "max": 3584.0,
+          "values": [
+            2048.0,
+            3072.0,
+            3584.0
+          ]
+        },
+        "qps": {
+          "count": 5,
+          "mean": 10200.26,
+          "min": 8200.1,
+          "max": 12450.5,
+          "values": [
+            12450.5,
+            8750.2,
+            11800.3,
+            8200.1,
+            9800.2
+          ]
+        },
+        "recall@10": {
+          "count": 5,
+          "mean": 0.8840199999999999,
+          "min": 0.7845,
+          "max": 0.9678,
+          "values": [
+            0.9521,
+            0.8923,
+            0.8234,
+            0.7845,
+            0.9678
+          ]
+        }
+      },
+      "Vamana": {
+        "index_build_time": {
+          "count": 2,
+          "mean": 47.15,
+          "min": 38.5,
+          "max": 55.8,
+          "values": [
+            38.5,
+            55.8
+          ]
+        },
+        "peak_memory": {
+          "count": 3,
+          "mean": 2624.0,
+          "min": 1856.0,
+          "max": 3200.0,
+          "values": [
+            1856.0,
+            2816.0,
+            3200.0
+          ]
+        },
+        "qps": {
+          "count": 5,
+          "mean": 10860.6,
+          "min": 8900.4,
+          "max": 13200.8,
+          "values": [
+            13200.8,
+            9200.5,
+            12500.7,
+            8900.4,
+            10500.6
+          ]
+        },
+        "recall@10": {
+          "count": 5,
+          "mean": 0.9014800000000001,
+          "min": 0.8312,
+          "max": 0.9612,
+          "values": [
+            0.9487,
+            0.9012,
+            0.8651,
+            0.8312,
+            0.9612
+          ]
+        }
+      }
+    }
+  },
+  "report": "# Research Weekly Report\n\n**Project**: Graph-based Approximate Nearest Neighbor Search\n**Period**: 2026-10-22 ~ 2026-10-29\n**Generated**: 2026-10-29 01:51\n\n## 1. Research Goals This Week\n\n- Next experiment plan: Test query distribution-aware graph construction on both HNSW and Vamana using the SIFT-128-OOD dataset. Compare recall improvement vs construction time overhead.\n- Research direction: Investigate whether combining HNSW's hierarchical structure with Vamana's alpha-pruning can create a hybrid index that handles OOD queries better than either method alone.\n\n## 2. Literature & Reading Discoveries\n\n- dataset_descriptions.md (2026-10-28T23:32:11.809124)\n- dataset_descriptions.md (2026-10-28T23:32:11.714787)\n- build_time_analysis.md (2026-10-28T23:32:11.529945)\n- evaluation_metrics.md (2026-10-28T23:32:11.241175)\n- query_aware_construction.md (2026-10-28T23:32:11.084266)\n- ood_analysis_notes.md (2026-10-28T23:32:10.996295)\n- vamana_paper_notes.md (2026-10-28T23:32:10.843681)\n- hnsw_paper_notes.md (2026-10-28T23:32:10.679471)\n\n## 3. Experiment Progress\n\nTotal experiment records: 30\nMethods tested: HNSW, Vamana\nDatasets used: glove-200-angular, glove-200-angular-ood, sift-128-euclidean, sift-128-euclidean-ood\n\n### Key Results\n\n**HNSW**:\n- index_build_time: mean=53.6500, min=45.2000, max=62.1000\n- peak_memory: mean=2901.3333, min=2048.0000, max=3584.0000\n- qps: mean=10200.2600, min=8200.1000, max=12450.5000\n- recall@10: mean=0.8840, min=0.7845, max=0.9678\n\n**Vamana**:\n- index_build_time: mean=47.1500, min=38.5000, max=55.8000\n- peak_memory: mean=2624.0000, min=1856.0000, max=3200.0000\n- qps: mean=10860.6000, min=8900.4000, max=13200.8000\n- recall@10: mean=0.9015, min=0.8312, max=0.9612\n\n## 4. Main Experimental Results\n\n| Method | Dataset | Metric | Value |\n|--------|---------|--------|-------|\n| HNSW | sift-128-euclidean | recall@10 | 0.9521 |\n| HNSW | sift-128-euclidean | qps | 12450.5000 |\n| HNSW | sift-128-euclidean | index_build_time | 45.2000 |\n| HNSW | sift-128-euclidean | peak_memory | 2048.0000 |\n| Vamana | sift-128-euclidean | recall@10 | 0.9487 |\n| Vamana | sift-128-euclidean | qps | 13200.8000 |\n| Vamana | sift-128-euclidean | index_build_time | 38.5000 |\n| Vamana | sift-128-euclidean | peak_memory | 1856.0000 |\n| HNSW | glove-200-angular | recall@10 | 0.8923 |\n| HNSW | glove-200-angular | qps | 8750.2000 |\n| HNSW | glove-200-angular | index_build_time | 62.1000 |\n| HNSW | glove-200-angular | peak_memory | 3072.0000 |\n| Vamana | glove-200-angular | recall@10 | 0.9012 |\n| Vamana | glove-200-angular | qps | 9200.5000 |\n| Vamana | glove-200-angular | index_build_time | 55.8000 |\n| Vamana | glove-200-angular | peak_memory | 2816.0000 |\n| HNSW | sift-128-euclidean-ood | recall@10 | 0.8234 |\n| HNSW | sift-128-euclidean-ood | qps | 11800.3000 |\n| Vamana | sift-128-euclidean-ood | recall@10 | 0.8651 |\n| Vamana | sift-128-euclidean-ood | qps | 12500.7000 |\n\n## 5. Current Issues & Failed Attempts\n\n- Failed approach: Adding random long-range edges to HNSW graph did not improve OOD recall significantly (< 1% improvement) while degrading in-distribution performance by 3%. The random edges introduced noise in the navigation structure.\n\n## 6. Confirmed Research Conclusions\n\n- Key finding: The alpha parameter in Vamana's pruning strategy has a significant impact on OOD performance. Alpha=1.2 provides the best tradeoff between in-distribution and OOD recall for our test datasets.\n- Current research focus: understanding how OOD query distributions affect graph-based ANN index performance. We hypothesize that query distribution-aware construction can significantly improve OOD recall.\n\n## 7. Next Week Research Plan\n\n- Next experiment plan: Test query distribution-aware graph construction on both HNSW and Vamana using the SIFT-128-OOD dataset. Compare recall improvement vs construction time overhead.\n- Research direction: Investigate whether combining HNSW's hierarchical structure with Vamana's alpha-pruning can create a hybrid index that handles OOD queries better than either method alone.\n\n## 8. Key Decisions Made\n\n- Decision: Prioritize Vamana over HNSW for OOD scenarios based on initial experiments showing 4-5% better recall on OOD benchmarks with comparable QPS.\n\n## 9. Sources\n\n- Data sourced from seekdb document store and PowerContext research memory\n- All experiment metrics traceable to original CSV records\n- Report generated by LabTrail Weekly Report Generator"
+}

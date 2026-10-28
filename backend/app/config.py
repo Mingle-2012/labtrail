@@ -11,14 +11,12 @@ UPLOAD_DIR = BASE_DIR / "uploads"
 DATA_DIR.mkdir(exist_ok=True)
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-SEEKB_MODE = os.getenv("SEEKB_MODE", "embedded")
-SEEKB_PATH = str(DATA_DIR / "seekdb")
-SEEKB_HOST = os.getenv("SEEKB_HOST", "localhost")
-SEEKB_PORT = int(os.getenv("SEEKB_PORT", "2881"))
+SEEKDB_MODE = os.getenv("SEEKDB_MODE", "embedded")
+SEEKDB_PATH = os.getenv("SEEKDB_PATH", str(DATA_DIR / "seekdb"))
+SEEKDB_HOST = os.getenv("SEEKDB_HOST", "localhost")
+SEEKDB_PORT = int(os.getenv("SEEKDB_PORT", "2881"))
 
-POWERCONTEXT_DB_PATH = str(DATA_DIR / "powercontext")
-
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+POWERCONTEXT_URL = os.getenv("POWERCONTEXT_URL", "http://127.0.0.1:8890")
 
 HOST = os.getenv("HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", "8000"))
