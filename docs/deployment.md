@@ -1,59 +1,59 @@
-# Deployment Guide
+# 部署指南
 
-## Local Development
+## 本地开发
 
-### Prerequisites
-- Python 3.12+ (recommended: install via Homebrew on macOS)
+### 环境要求
+- Python 3.12+（推荐：macOS 上通过 Homebrew 安装）
 - Node.js 18+
-- npm or yarn
+- npm 或 yarn
 
-### Setup Steps
+### 安装步骤
 
-1. **Clone and enter project directory**
+1. **进入项目目录**
 ```bash
 cd labtrail
 ```
 
-2. **Python environment**
+2. **配置 Python 环境**
 ```bash
 python3.12 -m venv venv
 source venv/bin/activate
 pip install -r backend/requirements.txt
 ```
 
-3. **Frontend dependencies**
+3. **安装前端依赖**
 ```bash
 cd frontend
 npm install
 cd ..
 ```
 
-4. **Environment configuration**
+4. **配置环境变量**
 ```bash
 cp .env.example .env
 ```
 
-5. **Load demo data**
+5. **加载演示数据**
 ```bash
 PYTHONPATH=backend python scripts/load_demo_data.py
 ```
 
-6. **Start backend**
+6. **启动后端**
 ```bash
 cd backend
 PYTHONPATH=. uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-7. **Start frontend** (new terminal)
+7. **启动前端**（新终端窗口）
 ```bash
 cd frontend
 npm run dev
 ```
 
-8. **Access application**
-Open http://localhost:5173
+8. **访问应用**
+打开 http://localhost:5173
 
-## Docker Deployment
+## Docker 部署
 
 ### docker-compose.yml
 ```yaml
@@ -81,54 +81,54 @@ services:
       - backend
 ```
 
-### Build and Run
+### 构建并运行
 ```bash
 docker-compose up -d
 ```
 
-## Qoder Sites Deployment
+## Qoder Sites 部署
 
-The frontend is deployed via Qoder Sites as a static site. The backend API is accessed via the development server or a separately hosted endpoint.
+前端通过 Qoder Sites 作为静态站点部署。后端 API 通过开发服务器或单独托管的端点访问。
 
-### Frontend Build
+### 前端构建
 ```bash
 cd frontend
 npm run build
 ```
 
-The built files are in `frontend/dist/` and can be deployed to any static hosting service.
+构建后的文件位于 `frontend/dist/` 目录，可部署到任何静态托管服务。
 
-## Environment Variables
+## 环境变量
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SEEKB_MODE` | seekdb mode: `embedded` or `server` | `embedded` |
-| `SEEKB_PATH` | Path for embedded seekdb data | `./data/seekdb` |
-| `SEEKB_HOST` | seekdb server host | `localhost` |
-| `SEEKB_PORT` | seekdb server port | `2881` |
-| `EMBEDDING_MODEL` | Sentence transformer model | `sentence-transformers/all-MiniLM-L6-v2` |
-| `HOST` | Backend server host | `0.0.0.0` |
-| `PORT` | Backend server port | `8000` |
-| `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:5173` |
-| `OPENAI_API_KEY` | Optional LLM API key | (empty) |
-| `OPENAI_BASE_URL` | Optional LLM API base URL | `https://api.openai.com/v1` |
-| `LLM_MODEL` | Optional LLM model name | `gpt-4o-mini` |
+| 变量 | 描述 | 默认值 |
+|------|------|--------|
+| `SEEKB_MODE` | seekdb 模式：`embedded` 或 `server` | `embedded` |
+| `SEEKB_PATH` | 嵌入式 seekdb 数据路径 | `./data/seekdb` |
+| `SEEKB_HOST` | seekdb 服务器地址 | `localhost` |
+| `SEEKB_PORT` | seekdb 服务器端口 | `2881` |
+| `EMBEDDING_MODEL` | 句子向量化模型 | `sentence-transformers/all-MiniLM-L6-v2` |
+| `HOST` | 后端服务器地址 | `0.0.0.0` |
+| `PORT` | 后端服务器端口 | `8000` |
+| `FRONTEND_URL` | 前端 URL（用于 CORS） | `http://localhost:5173` |
+| `OPENAI_API_KEY` | 可选 LLM API 密钥 | （空） |
+| `OPENAI_BASE_URL` | 可选 LLM API 基础 URL | `https://api.openai.com/v1` |
+| `LLM_MODEL` | 可选 LLM 模型名称 | `gpt-4o-mini` |
 
-## Troubleshooting
+## 常见问题排查
 
-### Python version issues
-- pyseekdb and powercontext require Python 3.11+
-- Install Python 3.12 via Homebrew: `brew install python@3.12`
+### Python 版本问题
+- pyseekdb 和 powercontext 需要 Python 3.11+
+- 通过 Homebrew 安装 Python 3.12：`brew install python@3.12`
 
-### seekdb initialization slow on first run
-- The embedding model (all-MiniLM-L6-v2) is downloaded on first use
-- Subsequent runs use the cached model (~86MB)
+### seekdb 首次初始化较慢
+- 向量化模型（all-MiniLM-L6-v2）在首次使用时下载
+- 后续运行使用缓存模型（约 86MB）
 
-### Frontend proxy issues
-- The Vite dev server proxies `/api` requests to `http://localhost:8000`
-- Ensure the backend is running before starting the frontend
+### 前端代理问题
+- Vite 开发服务器将 `/api` 请求代理到 `http://localhost:8000`
+- 确保在启动前端之前后端正在运行
 
-### Memory/disk usage
-- seekdb embedded mode stores data in `backend/data/seekdb/`
-- Uploaded files are stored in `backend/uploads/`
-- Clear these directories to reset all data
+### 内存/磁盘使用
+- seekdb 嵌入式模式将数据存储在 `backend/data/seekdb/` 目录
+- 上传文件存储在 `backend/uploads/` 目录
+- 清除这些目录可重置所有数据

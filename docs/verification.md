@@ -1,98 +1,98 @@
-# Verification Guide
+# 验证指南
 
-This document provides reproducible verification scenarios for the three core features of LabTrail.
+本文档提供 LabTrail 三个核心功能的可复现验证场景。
 
-## Scenario A: Research Knowledge Retrieval (seekdb)
+## 场景 A：研究知识检索（seekdb）
 
-### Initial State
-- Demo project loaded with 8 research notes about Graph-based ANN Search
-- seekdb contains document chunks with vector and full-text indices
+### 初始状态
+- 演示项目已加载，包含 8 篇关于基于图的 ANN 搜索的研究笔记
+- seekdb 中包含带有向量和全文索引的文档分块
 
-### Steps
-1. Start the backend server
-2. Send a search request:
+### 操作步骤
+1. 启动后端服务器
+2. 发送搜索请求：
 ```bash
 curl -X POST "http://localhost:8000/api/documents/search?project_id=demo_project" \
   -H "Content-Type: application/json" \
   -d '{"query": "Why does OOD query distribution degrade graph index performance?", "mode": "hybrid", "n_results": 5}'
 ```
 
-### Expected Output
-- Results contain relevant text chunks about OOD queries and graph indices
-- Each result includes:
-  - `text`: The matching document chunk
-  - `metadata.file_name`: Source document name (e.g., "ood_analysis_notes.md")
-  - `metadata.source`: Original paper/note reference
-  - `score`: Relevance score from RRF fusion
-  - `fusion: true`: Indicates hybrid search was used
+### 预期输出
+- 结果包含关于 OOD 查询和图索引的相关文本分块
+- 每条结果包含：
+  - `text`：匹配的文档分块
+  - `metadata.file_name`：来源文档名称（如 "ood_analysis_notes.md"）
+  - `metadata.source`：原始论文/笔记引用
+  - `score`：RRF 融合的相关性评分
+  - `fusion: true`：表示使用了混合搜索
 
-### seekdb Evidence
-The search uses:
-1. IVF vector index for semantic similarity
-2. Full-text index for keyword matching
-3. RRF fusion to combine results
+### seekdb 证据
+搜索使用了：
+1. IVF 向量索引进行语义相似度匹配
+2. 全文索引进行关键词匹配
+3. RRF 融合组合结果
 
-## Scenario B: Research Memory Recovery (PowerContext Concepts)
+## 场景 B：研究记忆恢复（PowerContext 设计理念）
 
-### Initial State
-- Demo project has 6 saved research memories
+### 初始状态
+- 演示项目已保存 6 条研究记忆
 
-### Steps
+### 操作步骤
 
-**Step 1: View existing memories**
+**步骤 1：查看现有记忆**
 ```bash
 curl "http://localhost:8000/api/memory/demo_project"
 ```
 
-**Step 2: Save a new memory**
+**步骤 2：保存新记忆**
 ```bash
 curl -X POST "http://localhost:8000/api/memory" \
   -H "Content-Type: application/json" \
   -d '{
     "project_id": "demo_project",
-    "content": "Remember: Current priority is optimizing OOD-aware graph construction. Do not research quantization compression until OOD experiments are complete.",
+    "content": "记住：当前优先级是优化 OOD 感知的图构建。在 OOD 实验完成之前，不要研究量化压缩。",
     "memory_type": "decision",
     "tags": ["OOD", "priority", "decision"]
   }'
 ```
 
-**Step 3: Simulate new session - recover context**
+**步骤 3：模拟新会话 - 恢复上下文**
 ```bash
 curl "http://localhost:8000/api/memory/demo_project/context"
 ```
 
-### Expected Output
-- The context endpoint returns all saved memories including the newly saved one
-- Memories are grouped by type (conclusion, decision, plan, failure)
-- The new decision about OOD priority is included
+### 预期输出
+- 上下文端点返回所有已保存的记忆，包括新保存的那条
+- 记忆按类型分组（结论、决策、计划、失败）
+- 包含关于 OOD 优先级的新决策
 
-**Step 4: Search memories**
+**步骤 4：搜索记忆**
 ```bash
 curl -X POST "http://localhost:8000/api/memory/search" \
   -H "Content-Type: application/json" \
   -d '{"project_id": "demo_project", "query": "What should we prioritize?", "n_results": 3}'
 ```
 
-### PowerContext Evidence
-- Memories persist in seekdb with structured metadata
-- Project isolation via project_id filtering
-- Semantic search over memory content
-- Cross-session recovery demonstrated by context endpoint
+### PowerContext 证据
+- 记忆持久化存储在 seekdb 中，带有结构化元数据
+- 通过 project_id 过滤实现项目隔离
+- 对记忆内容进行语义搜索
+- 上下文端点展示了跨会话恢复能力
 
-## Scenario C: Experiment Analysis & Weekly Report
+## 场景 C：实验分析与周报生成
 
-### Initial State
-- Demo project has 30 experiment records from experiments.csv
-- Data includes HNSW and Vamana methods across 4 datasets
+### 初始状态
+- 演示项目包含来自 experiments.csv 的 30 条实验记录
+- 数据涵盖 HNSW 和 Vamana 两种方法，跨 4 个数据集
 
-### Steps
+### 操作步骤
 
-**Step 1: View experiment analysis**
+**步骤 1：查看实验分析**
 ```bash
 curl "http://localhost:8000/api/experiments/demo_project"
 ```
 
-### Expected Output
+### 预期输出
 ```json
 {
   "total_records": 30,
@@ -110,55 +110,55 @@ curl "http://localhost:8000/api/experiments/demo_project"
 }
 ```
 
-**Step 2: Generate weekly report**
+**步骤 2：生成周报**
 ```bash
 curl -X POST "http://localhost:8000/api/reports/weekly" \
   -H "Content-Type: application/json" \
   -d '{"project_id": "demo_project"}'
 ```
 
-### Expected Output
-- Structured Markdown report with 9 sections
-- All experiment numbers match the raw CSV data
-- Research memories are included in conclusions and decisions sections
-- Sources section confirms data traceability
+### 预期输出
+- 包含 9 个部分的结构化 Markdown 报告
+- 所有实验数字与原始 CSV 数据一致
+- 研究记忆包含在结论和决策部分中
+- 来源部分确认数据可追溯性
 
-### Data Traceability Evidence
-- Report numbers can be verified against `demo-data/experiments.csv`
-- Each experiment record has an `experiment_id` linking to original data
-- Memory content matches saved research conclusions
+### 数据可追溯性证据
+- 报告数字可与 `demo-data/experiments.csv` 对照验证
+- 每条实验记录有 `experiment_id` 链接至原始数据
+- 记忆内容与保存的研究结论一致
 
-## Automated Test Script
+## 自动化测试脚本
 
 ```bash
 #!/bin/bash
-# Run all verification scenarios
+# 运行所有验证场景
 
 BASE_URL="http://localhost:8000"
 PROJECT_ID="demo_project"
 
-echo "=== Health Check ==="
+echo "=== 健康检查 ==="
 curl -s "$BASE_URL/api/health" | python3 -m json.tool
 
-echo -e "\n=== Scenario A: Search ==="
+echo -e "\n=== 场景 A：搜索 ==="
 curl -s -X POST "$BASE_URL/api/documents/search?project_id=$PROJECT_ID" \
   -H "Content-Type: application/json" \
   -d '{"query": "OOD query distribution", "mode": "hybrid", "n_results": 3}' | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'Results: {d[\"count\"]}, Mode: {d[\"mode\"]}')"
+  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'结果数: {d[\"count\"]}, 模式: {d[\"mode\"]}')"
 
-echo -e "\n=== Scenario B: Memory ==="
+echo -e "\n=== 场景 B：记忆 ==="
 curl -s "$BASE_URL/api/memory/$PROJECT_ID" | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'Memories: {len(d)}')"
+  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'记忆数: {len(d)}')"
 
-echo -e "\n=== Scenario C: Experiments ==="
+echo -e "\n=== 场景 C：实验 ==="
 curl -s "$BASE_URL/api/experiments/$PROJECT_ID" | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'Records: {d[\"total_records\"]}, Methods: {d[\"methods\"]}')"
+  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'记录数: {d[\"total_records\"]}, 方法: {d[\"methods\"]}')"
 
-echo -e "\n=== Report Generation ==="
+echo -e "\n=== 报告生成 ==="
 curl -s -X POST "$BASE_URL/api/reports/weekly" \
   -H "Content-Type: application/json" \
   -d "{\"project_id\": \"$PROJECT_ID\"}" | \
-  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'Report length: {len(d[\"report\"])} chars')"
+  python3 -c "import sys,json; d=json.load(sys.stdin); print(f'报告长度: {len(d[\"report\"])} 字符')"
 
-echo -e "\n=== All scenarios verified ==="
+echo -e "\n=== 所有场景验证完成 ==="
 ```

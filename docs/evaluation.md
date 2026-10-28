@@ -1,100 +1,100 @@
-# Usage Evaluation
+# 使用评估
 
-## Efficiency Test Design
+## 效率测试设计
 
-### Task 1: Find a Specific Conclusion in Papers
-**Manual Method**:
-1. Open paper PDF or notes
-2. Search for keywords (Ctrl+F)
-3. Read through results
-4. Verify conclusion context
-5. Estimated time: 5-15 minutes per paper
+### 任务 1：在论文中查找特定结论
+**手动方式**：
+1. 打开论文 PDF 或笔记
+2. 搜索关键词（Ctrl+F）
+3. 阅读搜索结果
+4. 验证结论上下文
+5. 预计耗时：每篇论文 5-15 分钟
 
-**LabTrail Method**:
-1. Open Search page
-2. Enter natural language question
-3. View ranked results with source references
-4. Click to view original document
-5. Estimated time: 30 seconds - 2 minutes
+**LabTrail 方式**：
+1. 打开检索页面
+2. 输入自然语言问题
+3. 查看带来源引用的排序结果
+4. 点击查看原始文档
+5. 预计耗时：30 秒 - 2 分钟
 
-### Task 2: Compare Algorithm Performance
-**Manual Method**:
-1. Open experiment CSV files
-2. Filter by method and dataset
-3. Calculate statistics manually
-4. Create comparison charts in Excel/Python
-5. Estimated time: 30-60 minutes
+### 任务 2：对比算法性能
+**手动方式**：
+1. 打开实验 CSV 文件
+2. 按方法和数据集过滤
+3. 手动计算统计数据
+4. 在 Excel/Python 中创建对比图表
+5. 预计耗时：30-60 分钟
 
-**LabTrail Method**:
-1. Open Experiments page
-2. View pre-computed comparisons
-3. Interactive charts update automatically
-4. Export if needed
-5. Estimated time: 1-2 minutes
+**LabTrail 方式**：
+1. 打开实验分析页面
+2. 查看预计算的对比结果
+3. 交互式图表自动更新
+4. 按需导出
+5. 预计耗时：1-2 分钟
 
-### Task 3: Write Research Weekly Report
-**Manual Method**:
-1. Review all notes from the week
-2. Summarize experiment results
-3. List conclusions and decisions
-4. Format report
-5. Estimated time: 1-2 hours
+### 任务 3：撰写科研周报
+**手动方式**：
+1. 回顾本周所有笔记
+2. 总结实验结果
+3. 列出结论和决策
+4. 格式化报告
+5. 预计耗时：1-2 小时
 
-**LabTrail Method**:
-1. Open Reports page
-2. Click "Generate Report"
-3. Review and export Markdown
-4. Estimated time: 1-2 minutes
+**LabTrail 方式**：
+1. 打开周报页面
+2. 点击"生成周报"
+3. 审阅并导出 Markdown
+4. 预计耗时：1-2 分钟
 
-## Performance Metrics
+## 性能指标
 
-### System Performance
-- Search latency: < 2 seconds (including embedding computation)
-- Report generation: < 1 second (template mode)
-- Document upload: < 5 seconds per document (including chunking and indexing)
-- Frontend load time: < 1 second
+### 系统性能
+- 搜索延迟：< 2 秒（含向量化计算）
+- 报告生成：< 1 秒（模板模式）
+- 文档上传：< 5 秒/篇（含分块和索引）
+- 前端加载时间：< 1 秒
 
-### Data Scale (Demo)
-- Documents: 8 research notes
-- Document chunks: 8 (one per note)
-- Experiment records: 30
-- Research memories: 6
-- Vector dimension: 384
+### 数据规模（演示）
+- 文档：8 篇研究笔记
+- 文档分块：8 个（每篇笔记一个分块）
+- 实验记录：30 条
+- 研究记忆：6 条
+- 向量维度：384
 
-## Evaluation Template
+## 评估模板
 
-**Note**: The following metrics are to be filled with real user test data.
+**说明**：以下指标需通过真实用户测试数据填写。
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Task 1 time (manual) | _ min | To be tested |
-| Task 1 time (LabTrail) | _ min | To be tested |
-| Task 2 time (manual) | _ min | To be tested |
-| Task 2 time (LabTrail) | _ min | To be tested |
-| Task 3 time (manual) | _ min | To be tested |
-| Task 3 time (LabTrail) | _ min | To be tested |
-| User satisfaction | _ / 5 | To be tested |
-| Search accuracy | _ % | To be tested |
+| 指标 | 数值 | 备注 |
+|------|------|------|
+| 任务 1 耗时（手动） | _ 分钟 | 待测试 |
+| 任务 1 耗时（LabTrail） | _ 分钟 | 待测试 |
+| 任务 2 耗时（手动） | _ 分钟 | 待测试 |
+| 任务 2 耗时（LabTrail） | _ 分钟 | 待测试 |
+| 任务 3 耗时（手动） | _ 分钟 | 待测试 |
+| 任务 3 耗时（LabTrail） | _ 分钟 | 待测试 |
+| 用户满意度 | _ / 5 | 待测试 |
+| 搜索准确率 | _ % | 待测试 |
 
-## Real User Testing
+## 真实用户测试
 
-**Status**: Pending
+**状态**：待进行
 
-To conduct real user testing:
-1. Invite 3-5 researchers to use LabTrail
-2. Have them complete the three tasks above
-3. Record time taken and satisfaction rating
-4. Compare with manual method baseline
-5. Collect qualitative feedback
+真实用户测试计划：
+1. 邀请 3-5 名科研人员使用 LabTrail
+2. 让他们完成上述三个任务
+3. 记录耗时和满意度评分
+4. 与手动方式基线对比
+5. 收集定性反馈
 
-## Usage Statistics
+## 使用统计
 
-**Status**: To be collected after deployment
+**状态**：部署后待收集
 
-Planned metrics to track (with user consent):
-- Number of searches performed
-- Number of documents uploaded
-- Number of reports generated
-- Number of memories saved
-- Average session duration
-- Feature usage frequency
+计划追踪的指标（需用户同意）：
+- 搜索执行次数
+- 文档上传数量
+- 报告生成数量
+- 记忆保存数量
+- 平均会话时长
+- 功能使用频率
