@@ -156,5 +156,5 @@ PYTHONPATH=backend python scripts/verify.py
 - 文档：已完成
 - 演示数据：已加载并验证
 - 自动化验证：已执行，日志与截图见 `evidence/`
-- Qoder Sites：已发布（将在本次更新后重新发布）
+- Qoder Sites：已发布并更新（2026-10-29，含最新验证数据与仓库链接）
 - GitHub：已推送公开仓库
